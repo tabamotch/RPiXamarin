@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:RPiXamarin"
+             x:Class="RPiXamarin.MainPage">
+
+    <StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+        <Entry WidthRequest="300" Text="{Binding Text}" />
+        <Button Text="Show Message!" Clicked="Button_OnClicked"/>
+    </StackLayout>
+
+</ContentPage>
