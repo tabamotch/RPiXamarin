@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Linq;
 using Reactive.Bindings;
 
 namespace RPiXamarin.ViewModel
@@ -11,15 +12,11 @@ namespace RPiXamarin.ViewModel
         public ReactiveProperty<int> RgbG { get; } = new ReactiveProperty<int>(255);
         public ReactiveProperty<int> RgbB { get; } = new ReactiveProperty<int>(255);
 
-        public ReactiveProperty<string> HexColor { get; private set; } = new ReactiveProperty<string>("#FFFFFF");
-
-        private string GetHexColor() => "#" + RgbR.Value.ToString("x2") + RgbG.Value.ToString("x2") + RgbB.Value.ToString("x2");
-
+        public ReactiveProperty<string> HexColor { get; private set; }
+        
         public MainPageViewModel()
         {
-            RgbR.Subscribe(_ => { HexColor.Value = GetHexColor(); });
-            RgbG.Subscribe(_ => { HexColor.Value = GetHexColor(); });
-            RgbB.Subscribe(_ => { HexColor.Value = GetHexColor(); });
+            HexColor = Observable.CombineLatest(RgbR, RgbG, RgbB, (r, g, b) => $"#{r:x2}{g:x2}{b:x2}").ToReactiveProperty();
         }
     }
 }
