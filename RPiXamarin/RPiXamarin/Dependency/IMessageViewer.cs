@@ -1,4 +1,4 @@
-﻿namespace RPiXamarin
+﻿namespace RPiXamarin.Dependency
 {
     public interface IMessageViewer
     {

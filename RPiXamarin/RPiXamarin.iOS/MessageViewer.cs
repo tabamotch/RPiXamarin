@@ -1,4 +1,5 @@
 ﻿using RPiXamarin;
+using RPiXamarin.Dependency;
 using RPiXamarin.iOS;
 using Xamarin.Forms;
 

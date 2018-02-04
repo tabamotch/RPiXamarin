@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RPiXamarin.Dependency;
+using RPiXamarin.ViewModel;
 using Xamarin.Forms;
 
-namespace RPiXamarin
+namespace RPiXamarin.View
 {
 	public partial class MainPage : ContentPage
 	{
-	    private MainPageViewModel _bindingContext = null;
+	    private readonly MainPageViewModel _bindingContext = null;
 
 		public MainPage()
 		{

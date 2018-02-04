@@ -9,7 +9,7 @@ using RPiXamarin.UWP;
 using Emmellsoft.IoT.Rpi.SenseHat;
 using Emmellsoft.IoT.Rpi.SenseHat.Fonts;
 using Emmellsoft.IoT.Rpi.SenseHat.Fonts.SingleColor;
-
+using RPiXamarin.Dependency;
 using Color = Windows.UI.Color;
 using Colors = Windows.UI.Colors;
 

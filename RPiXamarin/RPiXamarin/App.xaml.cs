@@ -13,7 +13,7 @@ namespace RPiXamarin
 		{
 			InitializeComponent();
 
-			MainPage = new RPiXamarin.MainPage();
+			MainPage = new RPiXamarin.View.MainPage();
 		}
 
 		protected override void OnStart ()
