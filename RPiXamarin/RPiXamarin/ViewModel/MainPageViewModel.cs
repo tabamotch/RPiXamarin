@@ -12,7 +12,7 @@ namespace RPiXamarin.ViewModel
         public ReactiveProperty<int> RgbG { get; } = new ReactiveProperty<int>(255);
         public ReactiveProperty<int> RgbB { get; } = new ReactiveProperty<int>(255);
 
-        public ReactiveProperty<string> HexColor { get; private set; }
+        public ReactiveProperty<string> HexColor { get; }
         
         public MainPageViewModel()
         {

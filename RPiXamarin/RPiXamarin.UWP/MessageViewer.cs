@@ -20,9 +20,7 @@ namespace RPiXamarin.UWP
     public class MessageViewer : IMessageViewer
     {
         private ISenseHat SenseHat { get; set; }
-
-        private readonly string _scrollText;
-
+        
         private enum RenderMode
         {
             YellowOnBlue,
@@ -65,34 +63,33 @@ namespace RPiXamarin.UWP
                 characterRenderer,
                 characters);
 
-            while (true)
+            // Step the scroller.
+            if (!textScroller.Step())
             {
-                // Step the scroller.
-                if (!textScroller.Step())
-                {
-                    // Reset the scroller when reaching the end.
-                    textScroller.Reset();
-                }
-
-                // Draw the background.
-                FillDisplay(textScroller.ScrollPixelOffset);
-
-                // Draw the scroll text.
-                textScroller.Render();
-
-                // Update the physical display.
-                SenseHat.Display.Update();
-
-                // Should the drawing mode change?
-                if (SenseHat.Joystick.Update() && (SenseHat.Joystick.EnterKey == KeyState.Pressing))
-                {
-                    // The middle button is just pressed.
-                    SwitchToNextScrollMode();
-                }
-
-                // Pause for a short while.
-                Thread.Sleep(TimeSpan.FromMilliseconds(50));
+                // Reset the scroller when reaching the end.
+                textScroller.Reset();
             }
+
+            // Draw the background.
+            FillDisplay(textScroller.ScrollPixelOffset);
+
+            // Draw the scroll text.
+            textScroller.Render();
+
+            // Update the physical display.
+            SenseHat.Display.Update();
+
+            // Should the drawing mode change?
+            if (SenseHat.Joystick.Update() && (SenseHat.Joystick.EnterKey == KeyState.Pressing))
+            {
+                // The middle button is just pressed.
+                SwitchToNextScrollMode();
+            }
+
+            // Pause for a short while.
+            //Thread.Sleep(TimeSpan.FromMilliseconds(50));
+            Task.Delay(50);
+
         }
 
         private void SwitchToNextScrollMode()
