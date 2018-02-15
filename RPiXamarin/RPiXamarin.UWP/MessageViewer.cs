@@ -75,35 +75,32 @@ namespace RPiXamarin.UWP
                 characterRenderer,
                 characters);
 
-            while (true)
+            for (int i = 0; i < 2; i++)
             {
-                // Step the scroller.
-                if (!textScroller.Step())
+                while (textScroller.Step())
                 {
-                    // Reset the scroller when reaching the end.
-                    textScroller.Reset();
-                    break;
+                    // Draw the background.
+                    FillDisplay(textScroller.ScrollPixelOffset);
+
+                    // Draw the scroll text.
+                    textScroller.Render();
+
+                    // Update the physical display.
+                    SenseHat.Display.Update();
+
+                    // Should the drawing mode change?
+                    if (SenseHat.Joystick.Update() && (SenseHat.Joystick.EnterKey == KeyState.Pressing))
+                    {
+                        // The middle button is just pressed.
+                        SwitchToNextScrollMode();
+                    }
+
+                    // Pause for a short while.
+                    //Thread.Sleep(TimeSpan.FromMilliseconds(50));
+                    Task.Delay(70).Wait();
                 }
 
-                // Draw the background.
-                FillDisplay(textScroller.ScrollPixelOffset);
-
-                // Draw the scroll text.
-                textScroller.Render();
-
-                // Update the physical display.
-                SenseHat.Display.Update();
-
-                // Should the drawing mode change?
-                if (SenseHat.Joystick.Update() && (SenseHat.Joystick.EnterKey == KeyState.Pressing))
-                {
-                    // The middle button is just pressed.
-                    SwitchToNextScrollMode();
-                }
-
-                // Pause for a short while.
-                //Thread.Sleep(TimeSpan.FromMilliseconds(50));
-                Task.Delay(70).Wait();
+                textScroller.Reset();
             }
         }
 
