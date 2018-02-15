@@ -17,17 +17,20 @@ namespace RPiXamarin.View
 		{
 			InitializeComponent();
             _bindingContext = new MainPageViewModel();
+
+		    _bindingContext.MessageButtonCommand.Subscribe(async _ =>
+		    {
+		        string text = _bindingContext.Text;
+
+		        Task messageTask = DisplayAlert("Message", text, "OK");
+
+		        IMessageViewer iMV = DependencyService.Get<IMessageViewer>();
+		        iMV?.ShowMessage(text);
+
+		        await messageTask;
+		    });
+
 		    this.BindingContext = _bindingContext;
 		}
-
-	    private async void Button_OnClicked(object sender, EventArgs e)
-	    {
-	        string text = _bindingContext.Text;
-
-	        await DisplayAlert("Message", text, "OK");
-
-	        IMessageViewer iMV = DependencyService.Get<IMessageViewer>();
-            iMV?.ShowMessage(text);
-	    }
 	}
 }
