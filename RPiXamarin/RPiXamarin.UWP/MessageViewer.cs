@@ -23,6 +23,7 @@ namespace RPiXamarin.UWP
         
         private enum RenderMode
         {
+            BlackOnWhite,
             YellowOnBlue,
             BlackOnStaticRainbow,
             BlackOnMovingRainbow,
@@ -30,15 +31,21 @@ namespace RPiXamarin.UWP
             MovingRainbowOnBlack,
         }
 
+        private bool _isInitialized = false;
         private readonly Windows.UI.Color[,] _rainbowColors = new Windows.UI.Color[8, 8];
         private RenderMode _currentMode;
+
+        public MessageViewer()
+        {
+            
+        }
 
         public void ShowMessage(string message)
         {
             Task.Run(async () =>
             {
                 SenseHat = await SenseHatFactory.GetSenseHat().ConfigureAwait(false);
-                
+                Run(message);
             });
         }
 
@@ -46,7 +53,12 @@ namespace RPiXamarin.UWP
         {
             // Get a copy of the rainbow colors.
             SenseHat.Display.Reset();
-            SenseHat.Display.CopyScreenToColors(_rainbowColors);
+
+            if (!_isInitialized)
+            {
+                SenseHat.Display.CopyScreenToColors(_rainbowColors);
+                _isInitialized = true;
+            }
 
             // Recreate the font from the serialized bytes.
             SingleColorFont font = SingleColorFont.Deserialize(FontBytes);
@@ -63,33 +75,36 @@ namespace RPiXamarin.UWP
                 characterRenderer,
                 characters);
 
-            // Step the scroller.
-            if (!textScroller.Step())
+            while (true)
             {
-                // Reset the scroller when reaching the end.
-                textScroller.Reset();
+                // Step the scroller.
+                if (!textScroller.Step())
+                {
+                    // Reset the scroller when reaching the end.
+                    textScroller.Reset();
+                    break;
+                }
+
+                // Draw the background.
+                FillDisplay(textScroller.ScrollPixelOffset);
+
+                // Draw the scroll text.
+                textScroller.Render();
+
+                // Update the physical display.
+                SenseHat.Display.Update();
+
+                // Should the drawing mode change?
+                if (SenseHat.Joystick.Update() && (SenseHat.Joystick.EnterKey == KeyState.Pressing))
+                {
+                    // The middle button is just pressed.
+                    SwitchToNextScrollMode();
+                }
+
+                // Pause for a short while.
+                //Thread.Sleep(TimeSpan.FromMilliseconds(50));
+                Task.Delay(70).Wait();
             }
-
-            // Draw the background.
-            FillDisplay(textScroller.ScrollPixelOffset);
-
-            // Draw the scroll text.
-            textScroller.Render();
-
-            // Update the physical display.
-            SenseHat.Display.Update();
-
-            // Should the drawing mode change?
-            if (SenseHat.Joystick.Update() && (SenseHat.Joystick.EnterKey == KeyState.Pressing))
-            {
-                // The middle button is just pressed.
-                SwitchToNextScrollMode();
-            }
-
-            // Pause for a short while.
-            //Thread.Sleep(TimeSpan.FromMilliseconds(50));
-            Task.Delay(50);
-
         }
 
         private void SwitchToNextScrollMode()
@@ -97,7 +112,7 @@ namespace RPiXamarin.UWP
             _currentMode++;
             if (_currentMode > RenderMode.MovingRainbowOnBlack)
             {
-                _currentMode = RenderMode.YellowOnBlue;
+                _currentMode = RenderMode.BlackOnWhite;
             }
         }
 
@@ -105,6 +120,10 @@ namespace RPiXamarin.UWP
         {
             switch (_currentMode)
             {
+                case RenderMode.BlackOnWhite:
+                    SenseHat.Display.Fill(Colors.Black);
+                    break;
+
                 case RenderMode.YellowOnBlue:
                     SenseHat.Display.Fill(Colors.Blue);
                     break;
@@ -136,6 +155,9 @@ namespace RPiXamarin.UWP
         {
             switch (_currentMode)
             {
+                case RenderMode.BlackOnWhite:
+                    return Colors.White;
+
                 case RenderMode.YellowOnBlue:
                     return Colors.Yellow;
 
