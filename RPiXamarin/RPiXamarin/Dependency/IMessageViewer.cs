@@ -2,6 +2,7 @@
 {
     public interface IMessageViewer
     {
-        void ShowMessage(string message);
+        void Initialize();
+        void ShowMessage(string message, int colorR, int colorG, int colorB);
     }
 }

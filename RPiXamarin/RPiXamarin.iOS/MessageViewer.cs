@@ -1,5 +1,4 @@
-﻿using RPiXamarin;
-using RPiXamarin.Dependency;
+﻿using RPiXamarin.Dependency;
 using RPiXamarin.iOS;
 using Xamarin.Forms;
 
@@ -9,9 +8,14 @@ namespace RPiXamarin.iOS
 {
     public class MessageViewer : IMessageViewer
     {
-        public void ShowMessage(string message)
+        public void Initialize()
         {
-            
+            // 何もしない
+        }
+
+        public void ShowMessage(string message, int colorR, int colorG, int colorB)
+        {
+            // 何もしない
         }
     }
 }

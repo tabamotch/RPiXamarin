@@ -1,29 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Xamarin.Forms;
-using RPiXamarin.UWP;
-using Emmellsoft.IoT.Rpi.SenseHat;
+﻿using Emmellsoft.IoT.Rpi.SenseHat;
 using Emmellsoft.IoT.Rpi.SenseHat.Fonts;
 using Emmellsoft.IoT.Rpi.SenseHat.Fonts.SingleColor;
 using RPiXamarin.Dependency;
+using RPiXamarin.UWP;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Xamarin.Forms;
 using Color = Windows.UI.Color;
 using Colors = Windows.UI.Colors;
 
-[assembly:Dependency(typeof(MessageViewer))]
+[assembly: Dependency(typeof(MessageViewer))]
 
 namespace RPiXamarin.UWP
 {
     public class MessageViewer : IMessageViewer
     {
-        private ISenseHat SenseHat { get; set; }
+        private static ISenseHat SenseHat { get; set; }
         
         private enum RenderMode
         {
-            BlackOnWhite,
+            BlackOnSelectedColor,
             YellowOnBlue,
             BlackOnStaticRainbow,
             BlackOnMovingRainbow,
@@ -32,34 +29,49 @@ namespace RPiXamarin.UWP
         }
 
         private bool _isInitialized = false;
-        private readonly Windows.UI.Color[,] _rainbowColors = new Windows.UI.Color[8, 8];
+        private readonly Color[,] _rainbowColors = new Color[8, 8];
         private RenderMode _currentMode;
+
+        private Color _fontColor = Color.FromArgb(255, 255, 255, 255);
 
         public MessageViewer()
         {
             
         }
 
-        public void ShowMessage(string message)
+        public void Initialize()
         {
-            Task.Run(async () =>
+            if(SenseHat == null)
             {
-                SenseHat = await SenseHatFactory.GetSenseHat().ConfigureAwait(false);
-                Run(message);
-            });
-        }
+                Task.Run(async () =>
+                {
+                    SenseHat = await SenseHatFactory.GetSenseHat().ConfigureAwait(false);
+                }).Wait();
+            }
 
-        private void Run(string text)
-        {
-            // Get a copy of the rainbow colors.
             SenseHat.Display.Reset();
 
-            if (!_isInitialized)
+            if(!_isInitialized)
             {
                 SenseHat.Display.CopyScreenToColors(_rainbowColors);
                 _isInitialized = true;
             }
 
+            Run("ready", 1);
+        }
+
+        public void ShowMessage(string message, int colorR = 255, int colorG = 255, int colorB = 255)
+        {
+            Task.Run(() =>
+            {
+                //Initialize();
+                _fontColor = Color.FromArgb(255, (byte)colorR, (byte)colorG, (byte)colorB);
+                Run(message, 2);
+            });
+        }
+
+        private void Run(string text, int repeatCount)
+        {
             // Recreate the font from the serialized bytes.
             SingleColorFont font = SingleColorFont.Deserialize(FontBytes);
 
@@ -75,7 +87,7 @@ namespace RPiXamarin.UWP
                 characterRenderer,
                 characters);
 
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < repeatCount; i++)
             {
                 while (textScroller.Step())
                 {
@@ -97,7 +109,7 @@ namespace RPiXamarin.UWP
 
                     // Pause for a short while.
                     //Thread.Sleep(TimeSpan.FromMilliseconds(50));
-                    Task.Delay(70).Wait();
+                    Task.Delay(30).Wait();
                 }
 
                 textScroller.Reset();
@@ -109,7 +121,7 @@ namespace RPiXamarin.UWP
             _currentMode++;
             if (_currentMode > RenderMode.MovingRainbowOnBlack)
             {
-                _currentMode = RenderMode.BlackOnWhite;
+                _currentMode = RenderMode.BlackOnSelectedColor;
             }
         }
 
@@ -117,7 +129,7 @@ namespace RPiXamarin.UWP
         {
             switch (_currentMode)
             {
-                case RenderMode.BlackOnWhite:
+                case RenderMode.BlackOnSelectedColor:
                     SenseHat.Display.Fill(Colors.Black);
                     break;
 
@@ -152,8 +164,8 @@ namespace RPiXamarin.UWP
         {
             switch (_currentMode)
             {
-                case RenderMode.BlackOnWhite:
-                    return Colors.White;
+                case RenderMode.BlackOnSelectedColor:
+                    return _fontColor;
 
                 case RenderMode.YellowOnBlue:
                     return Colors.Yellow;

@@ -25,6 +25,7 @@
         <Label Text="Enter your message" HorizontalOptions="Center"/>
         <Entry WidthRequest="300" Text="{Binding Text}" />
         <Button Text="Show Message!" Command="{Binding MessageButtonCommand}"/>
+        <Button x:Name="ShutdownButton" Text="Shutdown" Command="{Binding ShutdownButtonCommand}"/>
     </StackLayout>
 
 </ContentPage>
